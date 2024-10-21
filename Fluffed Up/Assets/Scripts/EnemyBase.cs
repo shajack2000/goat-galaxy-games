@@ -62,12 +62,12 @@ public class EnemyBase : CharacterClass
         switch (enemyState)
         {
         case EnemyState.Idle:
-            Debug.Log("EnemyState: Idle");
+            // Debug.Log("EnemyState: Idle");
             if (distanceToPlayer > 1)
                 enemyState = EnemyState.ChasingPlayer;
             break;
         case EnemyState.ChasingPlayer:
-            Debug.Log("EnemyState: ChasingPlayer");
+            // Debug.Log("EnemyState: ChasingPlayer");
             if (distanceToPlayer > 1)
             {
                 navMeshAgent.SetDestination(player.transform.position);

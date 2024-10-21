@@ -13,12 +13,12 @@ public class EnemySlime : EnemyBase
         switch (enemyState)
         {
         case EnemyState.InitiateAttack:
-            Debug.Log("EnemyState: InitiateAttack");
+            // Debug.Log("EnemyState: InitiateAttack");
             Attack();
             enemyState = EnemyState.Attacking;
             break;
         case EnemyState.Attacking:
-            Debug.Log("EnemyState: Attacking");
+            // Debug.Log("EnemyState: Attacking");
             if (distanceToPlayer > 1)
             {
                 enemyState = EnemyState.ChasingPlayer;

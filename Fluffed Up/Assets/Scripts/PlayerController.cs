@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
 
 public class PlayerController : CharacterClass
 {
@@ -15,7 +16,22 @@ public class PlayerController : CharacterClass
     public Transform projectileSpawnPoint;    // Where the projectile will spawn
     public float projectileSpeed = 20f;       // Speed of the projectile
     public float projectileDamage = 10f;      // Damage dealt by the projectile
-    private List<CollectibleItem> inventory = new List<CollectibleItem>();
+
+    [System.Serializable]
+    public class ItemProperties
+    {
+        public float totalAmount;
+        public float quantity;
+        public float value;
+
+        public ItemProperties(float newQuantity, float newValue)
+        {
+            quantity = newQuantity;
+            value = newValue;
+            totalAmount = quantity * value;
+        }
+    }
+    private Dictionary<string, ItemProperties> inventory = new Dictionary<string, ItemProperties>();
 
     [Header("Inputs")]
     [SerializeField]
@@ -28,6 +44,8 @@ public class PlayerController : CharacterClass
     [Header("UI")]
     [SerializeField]
     private GameObject deathScreen;
+    public TextMeshProUGUI coinCounterText; // For Unity UI Text
+    public TextMeshProUGUI healthCounterText; // For Unity UI Text
 
     private void Awake()
     {
@@ -61,6 +79,8 @@ public class PlayerController : CharacterClass
         {
             showDeathScreen(false);
         }
+
+        UpdateAllCounters();
     }
 
     void FixedUpdate()
@@ -105,7 +125,7 @@ public class PlayerController : CharacterClass
     void Update()
     {
         animator.SetBool("isRunning", isRunning);
-        Debug.Log("isAttacking:" + isAttacking.ToString());
+        // Debug.Log("isAttacking:" + isAttacking.ToString());
 
         // Enemy attack control. Attack when clicking left click.
         // TODO might need to update to input string name to account for controller.
@@ -125,11 +145,18 @@ public class PlayerController : CharacterClass
         {
             showDeathScreen(true);
         }
+        
         if (Input.GetMouseButtonDown(1) && !isAttacking)
         {
             Debug.Log("Right mouse button clicked - calling Shoot()");
             Shoot();
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1) && !isAttacking)
+        {
+            HealSelf();
+        }
+
     }
     void Shoot()
     {
@@ -181,9 +208,43 @@ public class PlayerController : CharacterClass
 
     public void CollectItem(CollectibleItem item)
     {
-        // Add the item to the inventory
-        inventory.Add(item);
-        Debug.Log($"Collected: {item.itemName}");
+        if (!inventory.ContainsKey(item.itemName))
+        {
+            // Debug.LogWarning("Adding new item to inventory");
+            ItemProperties properties = new ItemProperties(item.quantity, item.value);
+            inventory.Add(item.itemName, properties);
+        }
+        else
+        {
+            ItemProperties properties = inventory[item.itemName];
+            properties.quantity += item.quantity;
+            properties.totalAmount += item.totalAmount;
+            inventory[item.itemName] = properties;
+            // Debug.LogWarning("Item already exists in inventory. Updating amount");
+        }
+
+        // Debug.Log($"Collected: {item.itemName}");
+        UpdateAllCounters();
+    }
+
+    public ItemProperties GetItemProperties(string key)
+    {
+        if (inventory.TryGetValue(key, out ItemProperties properties))
+        {
+            // Debug.LogWarning("Item found in inventory.");
+            return properties;
+        }
+        else
+        {
+            // Debug.LogWarning("Item not found in inventory.");
+            return null;
+        }
+    }
+
+    void UpdateAllCounters()
+    {
+        UpdateCoinCounter();
+        UpdateHealthPackCounter();
     }
 
     public override void TakeDamage(float damage)
@@ -191,5 +252,86 @@ public class PlayerController : CharacterClass
         base.TakeDamage(damage);
 
         animator.Play("GetHit");
+    }
+
+    void UpdateCoinCounter()
+    {
+        ItemProperties properties = GetItemProperties("Coin");
+        if(properties != null)
+        {
+            coinCounterText.text = properties.totalAmount.ToString();
+        }
+        else
+        {
+            coinCounterText.text = "0";
+        }
+    }
+
+    void RemoveCoins(float amount)
+    {
+        ItemProperties properties = GetItemProperties("Coin");
+        if(properties != null)
+        {
+            if(properties.totalAmount != 0)
+            {
+                properties.totalAmount -= amount;
+                if (properties.totalAmount < 0) {
+                    properties.totalAmount = 0;
+                }
+                inventory["Coin"] = properties;
+                Debug.Log("Removing coins");
+                Debug.Log(inventory["Coin"].quantity);
+                UpdateCoinCounter();
+            }
+            else
+            {
+                Debug.Log("No coins to remove.");
+            }
+        }
+        else
+        {
+            Debug.Log("No coins to remove.");
+        }
+    }
+
+    void UpdateHealthPackCounter()
+    {
+        ItemProperties properties = GetItemProperties("Health");
+        if(properties != null)
+        {
+            healthCounterText.text = properties.quantity.ToString();
+        }
+        else
+        {
+            healthCounterText.text = "0";
+        }
+    }
+
+    void HealSelf()
+    {
+        ItemProperties properties = GetItemProperties("Health");
+        if(properties != null)
+        {
+            if(properties.quantity != 0 && health < 100)
+            {
+                Heal(properties.value);
+                properties.totalAmount -= properties.quantity * properties.value;
+                if (properties.totalAmount < 0) {
+                    properties.totalAmount = 0;
+                }
+                properties.quantity--;
+                inventory["Health"] = properties;
+                Debug.Log("Healed");
+                UpdateHealthPackCounter();
+            }
+            else
+            {
+                Debug.Log("No health to heal.");
+            }
+        }
+        else
+        {
+            Debug.Log("No health to heal.");
+        }
     }
 }

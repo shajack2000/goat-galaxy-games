@@ -565,6 +565,7 @@ MonoBehaviour:
   easeHealthSlider: {fileID: 4365593611696924242}
   character: {fileID: 9093177113315486429}
   healthHeightOffset: 1.5
+  healthText: {fileID: 0}
 --- !u!114 &4301866350006885830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,7 +753,7 @@ MonoBehaviour:
   burnDuration: 0
   freezeDuration: 0
   currency: 0
-  healthPotions: 0
+  healthPack: 0
   isGrounded: 0
   groundMask:
     serializedVersion: 2
@@ -774,7 +775,11 @@ MonoBehaviour:
   navMeshAgent: {fileID: 0}
   enemyState: 0
   player: {fileID: 0}
-  itemDrops: []
+  itemDrops:
+  - prefab: {fileID: 8059062218478941161, guid: e0bfc7479007bc1479a9f7d769c5056e, type: 3}
+    dropChance: 50
+  - prefab: {fileID: 378334508266577950, guid: e94711451283b5e4ea97dd9bec1c8506, type: 3}
+    dropChance: 50
 --- !u!1 &9095607449275565481
 GameObject:
   m_ObjectHideFlags: 0

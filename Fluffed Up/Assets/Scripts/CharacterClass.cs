@@ -35,10 +35,6 @@ public class CharacterClass : MonoBehaviour
     public float freezeDuration;
     #endregion
 
-    #region Character Collectables
-    public float currency;
-    public float healthPotions;
-    #endregion
 
     #region Grounded Attributes
     [Header("Grounded Attributes")]
@@ -114,7 +110,6 @@ public class CharacterClass : MonoBehaviour
             Debug.Log($"{gameObject.name} is frozen.");
             isFrozen = true;
             float origMoveSpeed = moveSpeed;
-            float tempMovesSpeed = 0;
             moveSpeed = 0; // Stop movement
             StartCoroutine(FreezeCoroutine(origMoveSpeed, duration));
         }
@@ -127,11 +122,28 @@ public class CharacterClass : MonoBehaviour
         isFrozen = false; // Reset frozen state
     }
 
-    public virtual void TakeDamage(float damage)
+    public virtual void Heal(float amount)
     {
-        Debug.Log($"{gameObject.name} is taking {damage} damage.");
+        // Debug.Log($"{gameObject.name} is taking {damage} damage.");
+        health += amount;
+        // Debug.Log($"{gameObject.name} health is now {health}");
+
+        if (health > 100)
+        {
+            health = 100;
+        }
+
+        if (healthBar != null)
+        {
+            healthBar.SetHealth(health);
+        }
+    }
+
+        public virtual void TakeDamage(float damage)
+    {
+        // Debug.Log($"{gameObject.name} is taking {damage} damage.");
         health -= damage;
-        Debug.Log($"{gameObject.name} health is now {health}");
+        // Debug.Log($"{gameObject.name} health is now {health}");
 
         if (health <= 0)
         {

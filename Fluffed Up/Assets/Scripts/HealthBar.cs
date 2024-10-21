@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class HealthBar : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class HealthBar : MonoBehaviour
 
     public Transform character;
     public float healthHeightOffset = 1.5f;
+
+    [SerializeField] 
+    private TextMeshProUGUI healthText; // For Unity UI Text
 
     private void Update()
     {
@@ -34,12 +38,22 @@ public class HealthBar : MonoBehaviour
         healthSlider.maxValue = health;
         healthSlider.value = health;
         easeHealthSlider.value = health;
+        UpdateHealthText();
     }
 
     // When health changes, set new health
     public void SetHealth(float health)
     {
         healthSlider.value = health; // Set slider health to character's health
+        UpdateHealthText();
+    }
+
+    void UpdateHealthText()
+    {
+        if (healthText)
+        {
+            healthText.text = "Health " + healthSlider.value + " / " + healthSlider.maxValue;
+        }
     }
 
 }

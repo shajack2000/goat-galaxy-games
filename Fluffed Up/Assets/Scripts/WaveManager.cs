@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
@@ -18,6 +19,10 @@ public class WaveManager : MonoBehaviour
     private GameObject shopComponent;
     public bool shopIsOpen;
 
+    [SerializeField] 
+    private TextMeshProUGUI waveCounterText; // For Unity UI Text
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,10 +35,17 @@ public class WaveManager : MonoBehaviour
 
     void StartWave()
     {
+        currentWave++; // update wave count
+        UpdateWaveCounter();
         for (int i = 0; i < 3; i++)
         {
             SpawnEnemy();
         }
+    }
+
+    void UpdateWaveCounter()
+    {
+        waveCounterText.text = "Wave " + currentWave.ToString();
     }
 
     void SpawnEnemy()
@@ -64,7 +76,7 @@ public class WaveManager : MonoBehaviour
     {
         if (enemy != null)
         {
-            Debug.Log("HandlePlayerAttack called");
+            // Debug.Log("HandlePlayerAttack called");
             float distance = Vector3.Distance(player.transform.position, enemy.transform.position);
 
             // Hit condition1: Distance smaller than threshold
@@ -72,7 +84,7 @@ public class WaveManager : MonoBehaviour
             bool withinAngle = math.abs(Vector3.Angle(player.transform.forward, enemy.transform.position - player.transform.position)) < 90 ;
             if (withinDistance && withinAngle)
             {
-                Debug.Log("Enemy got damage");
+                // Debug.Log("Enemy got damage");
                 enemy.TakeDamage(damage);
             }
         }
